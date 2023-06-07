@@ -30,14 +30,6 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QWid
 from PySide6.QtGui import QIntValidator, QPalette, QColor, QFont, QFontDatabase, QIcon
 from PySide6.QtMultimedia import QSoundEffect
 
-basedir = os.path.dirname(__file__)
-
-try:
-    from ctypes import windll  # Only exists on Windows.
-    myappid = 'com.PingTech.EinmaleinsTrainer.0.1'
-    windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-except ImportError:
-    pass
 
 class Color(QWidget):
 
@@ -54,14 +46,11 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.correct_answer_sound = "extra/correct_answer.wav"
-        self.false_answer_sound = "extra/false_answer.wav"
-
         self.sound_effect_one = QSoundEffect()
         self.sound_effect_two = QSoundEffect()
 
-        self.sound_effect_one.setSource(QUrl.fromLocalFile(self.correct_answer_sound))
-        self.sound_effect_two.setSource(QUrl.fromLocalFile(self.false_answer_sound))
+        self.sound_effect_one.setSource(QUrl.fromLocalFile(os.path.join('extra', 'correct_answer.wav')))
+        self.sound_effect_two.setSource(QUrl.fromLocalFile(os.path.join('extra', 'false_answer.wav')))
         self.sound_effect_one.setLoopCount(0)
         self.sound_effect_two.setLoopCount(0)
 
@@ -254,31 +243,44 @@ def generate_factors_and_product() -> ((int, int), int):
     return (first_factor, second_factor), product
 
 
-app = QApplication([])
-app.setWindowIcon(QIcon(os.path.join(basedir, 'extra', 'appico.ico')))
-# Set global stylesheet
-app.setStyleSheet(
-    "QMainWindow {"
-    "background-color: #798897;"
-    "}"
-    "QLabel {"
-    "color: #FFEAEE;"
-    "}"
-    "QLineEdit {"
-    "background-color: #798897;"
-    "color: #FFEAEE;"
-    "border-radius: 25px;"
-    "padding: 5px;"
-    "}"
-    "QLineEdit:focus {"
-    "border: 1px solid #FFEAEE;"
-    "color: #FFEAEE;"
-    "}"
-)
+def set_taskbar_icon_on_windows() -> None:    
+    try:
+        from ctypes import windll
+        app_id = 'com.PingTech.EinmaleinsTrainer.0.2'
+        windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
+    except ImportError:
+        # System is not Windows, icon in taskbar should have been set correctly
+        pass
 
-# Create the window
-window = MainWindow()
-window.show()
 
-# Start the event loop
-app.exec()
+if __name__ == "__main__":
+    set_taskbar_icon_on_windows();
+    
+    app = QApplication([])
+    app.setWindowIcon(QIcon(os.path.join('extra', 'appico.ico')))
+    # Set global stylesheet
+    app.setStyleSheet(
+        "QMainWindow {"
+        "background-color: #798897;"
+        "}"
+        "QLabel {"
+        "color: #FFEAEE;"
+        "}"
+        "QLineEdit {"
+        "background-color: #798897;"
+        "color: #FFEAEE;"
+        "border-radius: 25px;"
+        "padding: 5px;"
+        "}"
+        "QLineEdit:focus {"
+        "border: 1px solid #FFEAEE;"
+        "color: #FFEAEE;"
+        "}"
+    )
+    
+    # Create the window
+    window = MainWindow()
+    window.show()
+    
+    # Start the event loop
+    app.exec()
